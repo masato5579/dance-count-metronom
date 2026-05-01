@@ -1,0 +1,12 @@
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Scripts
+scripts/
+generate-sounds.sh
+
+# Misc
+.DS_Store
+*.md
+LICENSE
