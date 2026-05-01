@@ -14,6 +14,7 @@ BPMを設定し、ダンスのカウント（1〜8）をメトロノームのよ
 - **通常モード**: 1(One) → 2(Two) → ... → 8(Eight) の8カウントを1セットとして無限ループ再生
 - **エンドありモード**: 1(One) And → 2(Two) And → ... → 8(Eight) And（表拍=数字、裏拍=And）
 - カウント音声は**英語**（One, Two, Three, Four, Five, Six, Seven, Eight）
+- **ボイス切り替え**: Male（男性） / Female（女性） を選択可能
 - 「And」の音声は数字カウントと**同等の音量・トーン**
 - 1カウント目に特別なアクセントは付けない（全カウント均一）
 
@@ -28,7 +29,7 @@ BPMを設定し、ダンスのカウント（1〜8）をメトロノームのよ
 **選定理由:**
 - **リアルタイム性**: Web Audio API のスケジューリングはサンプル精度（マイクロ秒レベル）で最も正確
 - **サーバ通信**: 初回ロード以降はサーバ通信なし（ブラウザキャッシュ有効）
-- **ファイルサイズ**: 短い単語の音声は1ファイル数KB〜数十KB、全9ファイルで合計100KB以下
+- **ファイルサイズ**: 短い単語の音声は1ファイル数KB〜数十KB、全18ファイル（男女各9）で合計250KB以下
 
 ### 2.3 BPM 設定
 
@@ -79,6 +80,7 @@ BPMを設定し、ダンスのカウント（1〜8）をメトロノームのよ
 │                                 │
 │    BPM: [ 120 ] ◄━━━━━━━►      │
 │                                 │
+│    Voice: [ Male ▼ ]            │
 │    ☑ With And                   │
 │                                 │
 │    [ ▶ Start/Stop ] [ ↺ Reset ] │
@@ -114,11 +116,27 @@ BPMを設定し、ダンスのカウント（1〜8）をメトロノームのよ
 - **不要** — すべてフロントエンドで完結
 - 音声ファイルは `public/sounds/` ディレクトリに配置
 
+### 4.2 開発環境（Docker）
+
+- **すべての開発作業はDockerコンテナ内で行う**（ホストにライブラリをインストールしない）
+- `Dockerfile`: Node.js 20 + espeak-ng（TTS） + ffmpeg（音声変換）
+- `docker-compose.yml`: ボリュームマウントによるライブリロード開発
+- 音声ファイル生成スクリプト: `scripts/generate-sounds.sh`（コンテナ内で実行）
+
 ---
 
 ## 5. 音声ファイル一覧
 
-以下の音声ファイルをTTSまたはプログラムで事前生成し、アプリに同梱する:
+`scripts/generate-sounds.sh` をDockerコンテナ内で実行して自動生成する。
+**espeak-ng**（TTS）で WAV を生成後、**ffmpeg** で loudnorm フィルター付きMP3に変換。
+男性（`en-us`）・女性（`en-us+f3`）の2パターンをそれぞれサブディレクトリに格納。
+
+| ディレクトリ | ボイス | espeak-ng voice |
+|-------------|--------|----------------|
+| `sounds/male/` | 男性 | `en-us` |
+| `sounds/female/` | 女性 | `en-us+f3` |
+
+各ディレクトリに以下の9ファイルを格納:
 
 | ファイル名 | 内容 |
 |-----------|------|
@@ -132,7 +150,7 @@ BPMを設定し、ダンスのカウント（1〜8）をメトロノームのよ
 | `eight.mp3` | "Eight" |
 | `and.mp3` | "And" |
 
-全9ファイル。全カウント均一の音量・トーンで生成する。
+全18ファイル（9 × 2ボイス）。全カウント均一の音量・トーンで生成する（loudnorm: I=-16, TP=-1.5）。
 
 ---
 
@@ -151,12 +169,20 @@ BPMを設定し、ダンスのカウント（1〜8）をメトロノームのよ
 
 ```
 dance-count-metronom/
+├── Dockerfile                   # 開発環境定義
+├── docker-compose.yml           # コンテナ構成
+├── scripts/
+│   └── generate-sounds.sh       # 音声ファイル自動生成
 ├── public/
-│   └── sounds/              # 音声ファイル
-│       ├── one.mp3
-│       ├── two.mp3
-│       ├── ...
-│       └── and.mp3
+│   └── sounds/                  # 生成された音声ファイル
+│       ├── male/               # 男性ボイス
+│       │   ├── one.mp3
+│       │   ├── ...
+│       │   └── and.mp3
+│       └── female/             # 女性ボイス
+│           ├── one.mp3
+│           ├── ...
+│           └── and.mp3
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx
@@ -165,6 +191,7 @@ dance-count-metronom/
 │   ├── components/
 │   │   ├── Metronome.tsx        # メインコンポーネント
 │   │   ├── BpmControl.tsx       # BPM入力/スライダー
+│   │   ├── VoiceSelect.tsx      # ボイス切り替え（Male/Female）
 │   │   ├── PlaybackControls.tsx # Start/Stop/Reset
 │   │   ├── CountDisplay.tsx     # カウント表示/インジケーター
 │   │   └── DownloadButton.tsx   # WAVダウンロード
