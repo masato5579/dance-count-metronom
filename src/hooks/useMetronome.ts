@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { audioEngine, VoiceType, SoundName, COUNT_SOUNDS } from '@/lib/audioEngine';
-import { encodeWav } from '@/lib/wavEncoder';
 
 export interface MetronomeState {
   bpm: number;
@@ -19,7 +18,6 @@ export interface MetronomeActions {
   reset: () => void;
   setWithAnd: (withAnd: boolean) => void;
   setVoice: (voice: VoiceType) => void;
-  downloadWav: () => Promise<void>;
 }
 
 const LOOKAHEAD_MS = 25; // How often to check for scheduled notes (ms)
@@ -151,32 +149,8 @@ export function useMetronome(): [MetronomeState, MetronomeActions] {
     setVoiceState(newVoice);
   }, []);
 
-  const downloadWav = useCallback(async () => {
-    await audioEngine.loadSounds(voice);
-    const renderedBuffer = await audioEngine.renderToBuffer(bpm, withAnd);
-    const wavBlob = encodeWav(renderedBuffer);
-
-    const url = URL.createObjectURL(wavBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `dance-count_${bpm}bpm.wav`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [bpm, withAnd, voice]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
-
   const state: MetronomeState = { bpm, isPlaying, currentCount, withAnd, voice, isLoading };
-  const actions: MetronomeActions = { setBpm, togglePlay, reset, setWithAnd, setVoice, downloadWav };
+  const actions: MetronomeActions = { setBpm, togglePlay, reset, setWithAnd, setVoice };
 
   return [state, actions];
 }

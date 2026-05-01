@@ -55,13 +55,6 @@ BPMを設定し、ダンスのカウント（1〜8）をメトロノームのよ
 - Start/Stop は同一ボタンでトグル動作
 - Reset は別ボタン
 
-### 2.5 WAVダウンロード
-
-- 1エイト分（8カウント or エンド付き16カウント）の音源をダウンロード可能
-- 形式: **WAV**（ブラウザ上でのエンコードが容易）
-- カウント音声のみ（クリック音なし）
-- ファイル名: `dance-count_[BPM]bpm.wav`
-
 ---
 
 ## 3. UI / デザイン
@@ -84,8 +77,6 @@ BPMを設定し、ダンスのカウント（1〜8）をメトロノームのよ
 │    ☑ With And                   │
 │                                 │
 │    [ ▶ Start/Stop ] [ ↺ Reset ] │
-│                                 │
-│    [ ⬇ Download WAV ]           │
 │                                 │
 └─────────────────────────────────┘
 ```
@@ -193,13 +184,11 @@ dance-count-metronom/
 │   │   ├── BpmControl.tsx       # BPM入力/スライダー
 │   │   ├── VoiceSelect.tsx      # ボイス切り替え（Male/Female）
 │   │   ├── PlaybackControls.tsx # Start/Stop/Reset
-│   │   ├── CountDisplay.tsx     # カウント表示/インジケーター
-│   │   └── DownloadButton.tsx   # WAVダウンロード
+│   │   └── CountDisplay.tsx     # カウント表示/インジケーター
 │   ├── hooks/
 │   │   └── useMetronome.ts      # 音声再生ロジック
 │   └── lib/
-│       ├── audioEngine.ts       # Web Audio API 制御
-│       └── wavEncoder.ts        # WAVエンコード
+│       └── audioEngine.ts       # Web Audio API 制御
 ├── package.json
 ├── tsconfig.json
 └── next.config.js

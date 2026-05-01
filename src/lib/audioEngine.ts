@@ -66,40 +66,6 @@ export class AudioEngine {
     source.connect(ctx.destination);
     source.start(time);
   }
-
-  /**
-   * Render one eight-count (or with-and) to an offline AudioBuffer for WAV export.
-   */
-  async renderToBuffer(bpm: number, withAnd: boolean): Promise<AudioBuffer> {
-    const beatInterval = 60 / bpm;
-    const sequence: SoundName[] = [];
-
-    for (const count of COUNT_SOUNDS) {
-      sequence.push(count);
-      if (withAnd) {
-        sequence.push('and');
-      }
-    }
-
-    const interval = withAnd ? beatInterval / 2 : beatInterval;
-    const totalDuration = sequence.length * interval;
-    const sampleRate = 44100;
-    const totalSamples = Math.ceil(totalDuration * sampleRate);
-
-    const offlineCtx = new OfflineAudioContext(1, totalSamples, sampleRate);
-
-    for (let i = 0; i < sequence.length; i++) {
-      const buffer = this.buffers.get(sequence[i]);
-      if (!buffer) continue;
-
-      const source = offlineCtx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(offlineCtx.destination);
-      source.start(i * interval);
-    }
-
-    return offlineCtx.startRendering();
-  }
 }
 
 // Singleton

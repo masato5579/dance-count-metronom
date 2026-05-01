@@ -5,7 +5,6 @@ import CountDisplay from './CountDisplay';
 import BpmControl from './BpmControl';
 import VoiceSelect from './VoiceSelect';
 import PlaybackControls from './PlaybackControls';
-import DownloadButton from './DownloadButton';
 import styles from './Metronome.module.css';
 
 export default function Metronome() {
@@ -45,8 +44,6 @@ export default function Metronome() {
           onTogglePlay={actions.togglePlay}
           onReset={actions.reset}
         />
-
-        <DownloadButton onDownload={actions.downloadWav} />
       </div>
     </div>
   );
